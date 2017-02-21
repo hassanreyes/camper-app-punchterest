@@ -9,8 +9,6 @@ var routes = function(app, router, passportInstance) {
     router.get('/twitter/callback', 
         passportInstance.passport.authenticate('twitter', { failureRedirect: '/' }),
         (req, res) => {
-            //res.append('oauth_token', req.query.oauth_token);
-            //res.append('oauth_verifier', req.query.oauth_verifier);
             console.log("logged in");
             res.render('app');
         });
