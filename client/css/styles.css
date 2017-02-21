@@ -1,0 +1,116 @@
+
+@import url('https://fonts.googleapis.com/css?family=Bangers|Russo+One|VT323');
+
+body {
+    background-color: #3c3c3c;
+}
+
+h2 {
+    color: white;
+    font-family: 'Russo One', sans-serif;
+}
+
+.banner-title {
+    font-family: 'Bangers', sans-serif;
+    font-size: 1.2em;
+}
+
+.navbar-brand {
+    padding: 5px 15px;
+}
+
+/* Cuts long book titles */
+.book-title {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    max-width: 100%;
+    white-space: nowrap;
+}
+
+.app-navbar-img {
+    width: 50%;
+}
+
+.app-thumbnail-img {
+    min-width: 200px;
+    min-height: 300px;
+}
+
+.app-navbar-icon {
+    max-width: 2em;
+}
+
+.liked {
+    color: gold;
+}
+
+.new-post-anchor{
+    cursor: pointer;
+}
+
+/*------------------------------
+* MASONRY GRID 
+*--------------------------------*/
+.grid {
+  background: #EEE;
+  max-width: 1200px;
+}
+
+/* clearfix */
+.grid:after {
+  content: '';
+  display: block;
+  clear: both;
+}
+
+.grid-item {
+  width: 184px;
+  float: left;
+  border: 2px solid #333;
+  border-color: hsla(0, 0%, 0%, 0.5);
+  border-radius: 5px;
+  margin: 3px;
+  text-align: center;
+}
+
+/* fluid 5 columns */
+.grid-sizer,
+/*.grid-item { width: 20%; }*/
+/* 2 columns */
+.grid-item--width2 { width: 40%; }
+
+/*------------------------------
+* POSTS ESPECIFIC STYLES 
+*--------------------------------*/
+
+.post-description {
+    width: 97%;
+    max-height: 70px;
+    margin: 10px 3px 5px 3px;
+    background-color: #ddd;
+    font-family: 'VT323', monospace;
+    font-weight: 500;
+    font-size: 1.2em;
+    text-overflow: ellipsis;
+    display: block;
+    overflow: hidden;
+}
+
+.thumbnail {
+    margin-bottom: 0;
+}
+
+.caption {
+    background-color: #bdbdbd;
+    padding-bottom: 5px;
+}
+
+.thumbnail .caption {
+    padding: 12px;
+    color: #333;
+}
+
+.like-row {
+    margin-top: 7px;
+}
+
