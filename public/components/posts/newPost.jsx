@@ -33,11 +33,10 @@ class NewPost extends React.Component {
         })
         .catch((response) => {
             console.error(response.message);
-        })
+        });
     }
-
+    
     render() {
-        
         let displayWaterMark = this.state.imageURL && this.state.imageURL.trim() !== '' ? { display: 'none' } : { display: 'block' };
         
         return (
@@ -53,8 +52,8 @@ class NewPost extends React.Component {
                       <div className="col-sm-12 col-md-12">
                         <div className="thumbnail">
                           <div>
-                          <img style={displayWaterMark} id="imageURLPreview" src={this.defaultImageURL} alt="please enter a valid image URL"/>
-                          <img className="app-thumbnail-img" id="imageURLPreview" src={this.state.imageURL} alt={this.state.description}/>
+                          <img className="app-thumbnail-img" id="imageURLPreview" src={this.state.imageURL} alt={this.state.description}
+                            onError={(e) => e.target.src = "http://res.cloudinary.com/hassan/image/upload/v1486438820/punch_watermark_meblzh.svg"}/>
                           </div>
                           <div className="caption">
                             <div className="form-group">

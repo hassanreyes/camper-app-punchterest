@@ -15,20 +15,12 @@ h2 {
     font-size: 1.2em;
 }
 
-.navbar-brand {
-    padding: 5px 15px;
-}
-
 /* Cuts long book titles */
 .book-title {
     text-overflow: ellipsis;
     overflow: hidden;
     max-width: 100%;
     white-space: nowrap;
-}
-
-.app-navbar-img {
-    width: 50%;
 }
 
 .app-thumbnail-img {
@@ -44,8 +36,14 @@ h2 {
     color: gold;
 }
 
-.new-post-anchor{
+.new-post-anchor {
     cursor: pointer;
+}
+
+.app-menu-item {
+    font-family: 'Russo One';
+    font-size: x-large;
+    margin-top: 15px;
 }
 
 /*------------------------------
@@ -114,3 +112,6 @@ h2 {
     margin-top: 7px;
 }
 
+.nav>li>a>img {
+    max-width: 48px;
+}

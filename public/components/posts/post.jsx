@@ -28,7 +28,8 @@ export default class Post extends React.Component {
             
         return (
             <div className="thumbnail">
-              <img id="imageURLPreview" src={this.props.imageURL} alt={this.props.description}/>
+              <img id="imageURLPreview" src={this.props.imageURL} alt={this.props.description}
+              onError={(e) => e.target.src = "http://res.cloudinary.com/hassan/image/upload/v1486438820/punch_watermark_meblzh.svg"}/>
               <div className="caption">
                 <div className="row">
                     <p className="post-description">{this.props.description}</p>
