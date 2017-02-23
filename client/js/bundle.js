@@ -4706,7 +4706,7 @@ module.exports = __webpack_require__(152);
 
 /***/ },
 /* 39 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 'use strict';
@@ -4714,12 +4714,64 @@ module.exports = __webpack_require__(152);
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.getPosts = getPosts;
+exports.getUserPosts = getUserPosts;
 exports.fetchUser = fetchUser;
 exports.fetchNewPost = fetchNewPost;
 exports.requestPost = requestPost;
 exports.fetchPosts = fetchPosts;
 exports.fetchRequestError = fetchRequestError;
 exports.fetchUserPosts = fetchUserPosts;
+
+var _axios = __webpack_require__(38);
+
+var _axios2 = _interopRequireDefault(_axios);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/*----------------------------------
+*
+* Complex Actions
+*
+*----------------------------------*/
+function getPosts(dispatch) {
+    var showRequesting = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
+    dispatch(function (dispatch) {
+
+        //Start requesting state
+        if (showRequesting) dispatch(requestPost());
+
+        //Get all user's posts
+        _axios2.default.get('/posts').then(function (response) {
+            //fetch posts
+            dispatch(fetchPosts(response.data));
+        }).catch(function (error) {
+            //dispatch error
+            dispatch(fetchRequestError(error.message));
+        });
+    });
+}
+
+function getUserPosts(dispatch, userId) {
+    //get given user's posts
+    var url = '/posts/' + userId;
+    _axios2.default.get(url).then(function (response) {
+        dispatch(
+        //fetch posts
+        fetchUserPosts(response.data.user, response.data.posts));
+    }).catch(function (error) {
+        //TODO:: Dispatch Error as an Action
+        console.error(error.message);
+    });
+}
+
+/*----------------------------------
+* 
+* Basic Action objects creators
+*
+*----------------------------------*/
+
 function fetchUser(user) {
     return {
         type: 'FETCH_USER',
@@ -9626,7 +9678,7 @@ var Post = function (_React$Component) {
         key: "handleLikeIt",
         value: function handleLikeIt(e) {
             if (this.props.user && this.props.user._id) {
-                if (this.props.liked) this.props.unlikedPost(this.props.user, this.props.id);else this.props.likePost(this.props.user, this.props.id);
+                if (this.props.liked) this.props.unlikedPost(this.props.userId, this.props.id);else this.props.likePost(this.props.userId, this.props.id);
             }
         }
     }, {
@@ -9634,6 +9686,13 @@ var Post = function (_React$Component) {
         value: function handleGoUser(e) {
             if (this.props.userId && this.props.goUser) {
                 this.props.goUser(this.props.userId);
+            }
+        }
+    }, {
+        key: "handleRemove",
+        value: function handleRemove(e) {
+            if (this.props.user && this.props.user._id) {
+                this.props.removePost(this.props.id);
             }
         }
     }, {
@@ -9645,6 +9704,12 @@ var Post = function (_React$Component) {
             if (this.props.user === undefined || this.props.user._id === undefined) likeButtonClassName += "disabled";
 
             var likeIconClassName = this.props.liked ? "fa fa-thumbs-up liked" : "fa fa-thumbs-o-up";
+
+            var removeButton = this.props.userId === this.props.user._id ? _react2.default.createElement(
+                "button",
+                { className: likeButtonClassName, onClick: this.handleRemove.bind(this) },
+                _react2.default.createElement("i", { className: "fa fa-trash", "aria-hidden": "true" })
+            ) : null;
 
             return _react2.default.createElement(
                 "div",
@@ -9670,7 +9735,7 @@ var Post = function (_React$Component) {
                         { className: "row like-row" },
                         _react2.default.createElement(
                             "div",
-                            { className: "col-sm-6" },
+                            { className: "col-sm-4" },
                             _react2.default.createElement(
                                 "a",
                                 { href: "#", onClick: this.handleGoUser.bind(this) },
@@ -9679,7 +9744,7 @@ var Post = function (_React$Component) {
                         ),
                         _react2.default.createElement(
                             "div",
-                            { className: "col-sm-6" },
+                            { className: "col-sm-4" },
                             _react2.default.createElement(
                                 "div",
                                 { className: "row" },
@@ -9695,6 +9760,11 @@ var Post = function (_React$Component) {
                                     )
                                 )
                             )
+                        ),
+                        _react2.default.createElement(
+                            "div",
+                            { className: "col-sm-4" },
+                            removeButton
                         )
                     )
                 )
@@ -14583,26 +14653,24 @@ var AllPosts = function (_React$Component) {
 
     _createClass(AllPosts, [{
         key: "handleLikePost",
-        value: function handleLikePost(user, post_id) {
+        value: function handleLikePost(userId, post_id) {
             var _this2 = this;
 
-            var url = "/posts/like/" + user._id + "/" + post_id + "/" + this.props.user._id;
+            var url = "/posts/like/" + userId + "/" + post_id;
             _axios2.default.get(url).then(function (response) {
-                _this2.props.dispatch(userActions.fetchPosts(response.data));
-                console.log(response);
+                userActions.getPosts(_this2.props.dispatch);
             }).catch(function (error) {
                 console.error(error.message);
             });
         }
     }, {
         key: "handleUnlikePost",
-        value: function handleUnlikePost(user, post_id) {
+        value: function handleUnlikePost(userId, post_id) {
             var _this3 = this;
 
-            var url = "/posts/unlike/" + user._id + "/" + post_id + "/" + this.props.user._id;
+            var url = "/posts/unlike/" + userId + "/" + post_id;
             _axios2.default.get(url).then(function (response) {
-                _this3.props.dispatch(userActions.fetchPosts(response.data));
-                console.log(response);
+                userActions.getPosts(_this3.props.dispatch);
             }).catch(function (error) {
                 console.error(error.message);
             });
@@ -14613,30 +14681,22 @@ var AllPosts = function (_React$Component) {
             _reactRouter.browserHistory.push({ pathname: '/userPosts', query: { user_id: user_id } });
         }
     }, {
-        key: "componentWillMount",
-        value: function componentWillMount() {
+        key: "handleRemovePost",
+        value: function handleRemovePost(post_id) {
             var _this4 = this;
 
-            this.props.dispatch(function (dispatch) {
-
-                dispatch(userActions.requestPost());
-
-                _axios2.default.get('/posts').then(function (response) {
-                    dispatch(userActions.fetchPosts(response.data));
-
-                    if (_this4.props.user._id) {
-                        _axios2.default.get('/posts/' + _this4.props.user._id).then(function (response) {
-                            console.log(response);
-                        }).catch(function (error) {
-                            debugger;
-                            console.error(error.message);
-                        });
-                    }
-                }).catch(function (error) {
-                    debugger;
-                    dispatch(userActions.fetchRequestError(error.message));
-                });
+            var url = "/posts/" + post_id;
+            _axios2.default.delete(url).then(function (response) {
+                userActions.getPosts(_this4.props.dispatch);
+            }).catch(function (error) {
+                console.error(error.message);
             });
+        }
+    }, {
+        key: "componentWillMount",
+        value: function componentWillMount() {
+            //Request and fetch all user´s posts
+            userActions.getPosts(this.props.dispatch, true);
         }
     }, {
         key: "componentDidUpdate",
@@ -14664,7 +14724,8 @@ var AllPosts = function (_React$Component) {
                         likesCount: post.likesCount, liked: post.liked > 0,
                         user: this.props.user, goUser: this.handleGoUser,
                         unlikedPost: this.handleUnlikePost.bind(this),
-                        likePost: this.handleLikePost.bind(this) })
+                        likePost: this.handleLikePost.bind(this),
+                        removePost: this.handleRemovePost.bind(this) })
                 ));
             }
 
@@ -14855,26 +14916,26 @@ var UserPosts = function (_React$Component) {
 
     _createClass(UserPosts, [{
         key: "handleLikePost",
-        value: function handleLikePost(user, post_id) {
+        value: function handleLikePost(userId, post_id) {
             var _this2 = this;
 
-            var url = "/posts/like/" + user._id + "/" + post_id + "/" + this.props.user._id;
+            var url = "/posts/like/" + userId + "/" + post_id;
             _axios2.default.get(url).then(function (response) {
-                _this2.props.dispatch(userActions.fetchPosts(response.data));
-                console.log(response);
+                //update list of user posts
+                userActions.getUserPosts(_this2.props.dispatch, _this2.props.user_id);
             }).catch(function (error) {
                 console.error(error.message);
             });
         }
     }, {
         key: "handleUnlikePost",
-        value: function handleUnlikePost(user, post_id) {
+        value: function handleUnlikePost(userId, post_id) {
             var _this3 = this;
 
-            var url = "/posts/unlike/" + user._id + "/" + post_id + "/" + this.props.user._id;
+            var url = "/posts/unlike/" + userId + "/" + post_id;
             _axios2.default.get(url).then(function (response) {
-                _this3.props.dispatch(userActions.fetchPosts(response.data));
-                console.log(response);
+                //update list of user posts
+                userActions.getUserPosts(_this3.props.dispatch, _this3.props.user_id);
             }).catch(function (error) {
                 console.error(error.message);
             });
@@ -14885,16 +14946,23 @@ var UserPosts = function (_React$Component) {
             _reactRouter.browserHistory.push({ pathname: '/userPosts', query: { user_id: user_id } });
         }
     }, {
-        key: "componentWillMount",
-        value: function componentWillMount() {
+        key: "handleRemovePost",
+        value: function handleRemovePost(user, post_id) {
             var _this4 = this;
 
-            var url = "/posts/" + this.props.user_id;
-            _axios2.default.get(url).then(function (response) {
-                _this4.props.dispatch(userActions.fetchUserPosts(response.data.user, response.data.posts));
+            var url = "/posts/" + post_id;
+            _axios2.default.delete(url).then(function (response) {
+                //update list of user posts
+                userActions.getUserPosts(_this4.props.dispatch, _this4.props.user_id);
             }).catch(function (error) {
                 console.error(error.message);
             });
+        }
+    }, {
+        key: "componentWillMount",
+        value: function componentWillMount() {
+            //Request and fetch user´s posts
+            userActions.getUserPosts(this.props.dispatch, this.props.user_id);
         }
     }, {
         key: "componentDidUpdate",
@@ -14919,12 +14987,13 @@ var UserPosts = function (_React$Component) {
                     postElements.push(_react2.default.createElement(
                         "div",
                         { className: "grid-item", key: prop },
-                        _react2.default.createElement(_post2.default, { id: post.post_id, userId: prop, photoURL: post.photoURL,
+                        _react2.default.createElement(_post2.default, { id: post.post_id, userId: post._id, photoURL: post.photoURL,
                             imageURL: post.imageURL, description: post.description,
                             likesCount: post.likesCount, liked: post.liked > 0,
                             user: this.props.user, goUser: this.handleGoUser.bind(this),
                             unlikedPost: this.handleUnlikePost.bind(this),
-                            likePost: this.handleLikePost.bind(this) })
+                            likePost: this.handleLikePost.bind(this),
+                            removePost: this.handleRemovePost.bind(this) })
                     ));
                 }
             }
@@ -14970,11 +15039,6 @@ exports.default = (0, _reactRedux.connect)(function (state) {
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 exports.default = reducer;
 
 var _immutable = __webpack_require__(173);
@@ -14996,42 +15060,27 @@ function reducer() {
     var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initState;
     var action = arguments[1];
 
-    var _ret = function () {
-        switch (action.type) {
-            case 'FETCH_USER':
-                return {
-                    v: state.set('user', (0, _immutable.Map)(action.payload.user))
-                };
-            case 'FETCH_NEW_POST':
-                var nPost = (0, _normalizr.normalize)(_extends({}, action.payload.post, { post_id: action.payload.post._id }), _schema.post);
-                return {
-                    v: state.updateIn(['posts'], function (posts) {
-                        return posts.merge((0, _immutable.Map)(nPost.entities.posts));
-                    })
-                };
-            case 'REQUEST_POSTS':
-                return {
-                    v: state.set('requesting', action.payload.requesting)
-                };
-            case 'FETCH_POSTS':
-                var nPosts = (0, _normalizr.normalize)(action.payload, { posts: new _normalizr.schema.Array(_schema.post) });
-                return {
-                    v: state.set('requesting', action.payload.requesting).set('posts', (0, _immutable.OrderedMap)(nPosts.entities.posts))
-                };
-            case 'FETCH_ERROR':
-                return {
-                    v: state.set('error', action.payload.error).set('requesting', action.payload.requesting)
-                };
-            case 'FETCH_USER_POSTS':
-                var nUserPosts = (0, _normalizr.normalize)(action.payload, { posts: new _normalizr.schema.Array(_schema.post) });
-                var user = (0, _immutable.Map)(action.payload.user);
-                return {
-                    v: state.set('userPosts', user.set('posts', (0, _immutable.OrderedMap)(nUserPosts.entities.posts)))
-                };
-        }
-    }();
-
-    if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+    switch (action.type) {
+        case 'FETCH_USER':
+            return state.set('user', (0, _immutable.Map)(action.payload.user));
+        /*
+        --Deprecated--
+        case 'FETCH_NEW_POST':
+            const nPost = normalize({...action.payload.post, post_id: action.payload.post._id}, post);
+            return state.updateIn(['posts'], posts => posts.merge(Map(nPost.entities.posts)));
+        */
+        case 'REQUEST_POSTS':
+            return state.set('requesting', action.payload.requesting);
+        case 'FETCH_POSTS':
+            var nPosts = (0, _normalizr.normalize)(action.payload, { posts: new _normalizr.schema.Array(_schema.post) });
+            return state.set('requesting', action.payload.requesting).set('posts', (0, _immutable.OrderedMap)(nPosts.entities.posts));
+        case 'FETCH_ERROR':
+            return state.set('error', action.payload.error).set('requesting', action.payload.requesting);
+        case 'FETCH_USER_POSTS':
+            var nUserPosts = (0, _normalizr.normalize)(action.payload, { posts: new _normalizr.schema.Array(_schema.post) });
+            var user = (0, _immutable.Map)(action.payload.user);
+            return state.set('userPosts', user.set('posts', (0, _immutable.OrderedMap)(nUserPosts.entities.posts)));
+    }
     return state;
 }
 
@@ -16297,7 +16346,7 @@ var NewPost = function (_React$Component) {
         //Clear fields
         _this2.setState({ imageURL: '', description: '' });
         //Update application state (redux store state)
-        _this2.props.dispatch(userActions.fetchNewPost(response.data));
+        userActions.getPosts(_this2.props.dispatch);
         //Hide modal
         $('#newPostModal').modal('hide');
       }).catch(function (response) {
@@ -16307,8 +16356,6 @@ var NewPost = function (_React$Component) {
   }, {
     key: "render",
     value: function render() {
-      var displayWaterMark = this.state.imageURL && this.state.imageURL.trim() !== '' ? { display: 'none' } : { display: 'block' };
-
       return _react2.default.createElement(
         "div",
         { className: "modal fade", id: "newPostModal", role: "dialog", "aria-labelledby": "newPostLabel" },

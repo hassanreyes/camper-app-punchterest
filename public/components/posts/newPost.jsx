@@ -27,7 +27,7 @@ class NewPost extends React.Component {
           //Clear fields
           this.setState({ imageURL: '', description: ''});
           //Update application state (redux store state)
-          this.props.dispatch(userActions.fetchNewPost(response.data));
+          userActions.getPosts(this.props.dispatch);
           //Hide modal
           $('#newPostModal').modal('hide');
         })
@@ -37,8 +37,6 @@ class NewPost extends React.Component {
     }
     
     render() {
-        let displayWaterMark = this.state.imageURL && this.state.imageURL.trim() !== '' ? { display: 'none' } : { display: 'block' };
-        
         return (
             <div className="modal fade" id="newPostModal" role="dialog" aria-labelledby="newPostLabel">
               <div className="modal-dialog" role="document">

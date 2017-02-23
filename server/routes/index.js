@@ -67,6 +67,22 @@ var routes = function(app, router, passportInstance){
             });
     });
     
+    router.delete('/posts/:post_id', passportInstance.authorize, (req, res) => {
+        var user = req.user || { _id: 0 };
+        var id = req.params.post_id;
+        
+        User.findOneAndUpdate(
+           { _id: user._id },
+           { $pull: { posts : { _id : id } } },
+           { 'new' : true },
+           (err, result) => {
+               if(err) return res.status(422).json({ error: "unknown error removing like in a post"});
+               //return empty success
+                return res.status(200).json();
+           }
+           );
+    });
+    
     router.get('/posts/:user_id', (req, res) => {
         var user = req.user || { _id: 0 };
         var user_id = mongoose.Types.ObjectId(req.params.user_id);
@@ -96,6 +112,7 @@ var routes = function(app, router, passportInstance){
             ])
             .exec((err, result) => {
                 if(err) return res.status(422).json({ error: "unknown error getting posts"});
+                //return user and his posts
                 res.status(200).json( { user: postsUser, posts: result } );
             });   
             
@@ -103,90 +120,44 @@ var routes = function(app, router, passportInstance){
         
     });
     
-    router.get('/posts/like/:user_id/:post_id/:like_by', (req, res) => {
+    router.get('/posts/like/:user_id/:post_id', passportInstance.authorize, (req, res) => {
         var user = req.user || { _id: 0 };
         var user_id = mongoose.Types.ObjectId(req.params.user_id);
         var id = mongoose.Types.ObjectId(req.params.post_id);
-        var like_by = mongoose.Types.ObjectId(req.params.like_by);
+        //var like_by = mongoose.Types.ObjectId(req.params.like_by);
        
         User.findOneAndUpdate(
            { '_id': user_id, 'posts._id': id },
            { '$push': {
-                    'posts.$.likes' : { user: like_by }
+                    'posts.$.likes' : { user: user._id }
                 }
            },
            { 'new' : true },
            (err, result) => {
-               if(err) return res.status(422).json({ error: "unknown error setting like a post"});
-               
-               User.aggregate([
-                { $match: { _id: user_id, 'posts._id' : id } },
-                { $unwind: '$posts' },
-                { $project: {
-                    photoURL: 1,
-                    post_id: '$posts._id',
-                    imageURL: '$posts.imageURL',
-                    description: '$posts.description',
-                    likesCount: { $size: '$posts.likes' },
-                    liked: { $size : {
-                        $filter: { 
-                            input: '$posts.likes',
-                            as: 'like',
-                            cond: { $eq: [ '$$like.user', user._id ] }
-                        }
-                    }}
-                }},
-                { $sort: { 'posts.date': -1} }
-                ])
-                .exec((err, result) => {
-                    if(err) return res.status(422).json({ error: "unknown error getting posts"});
-                    
-                    res.status(200).json(result);
-                });
+                if(err) return res.status(422).json({ error: "unknown error setting like a post"});
+                //retrun empty success
+                return res.status(200).json();
            }
            );
     });
     
-    router.get('/posts/unlike/:user_id/:post_id/:like_by', (req, res) => {
+    router.get('/posts/unlike/:user_id/:post_id', passportInstance.authorize, (req, res) => {
         var user = req.user || { _id: 0 };
         var user_id = mongoose.Types.ObjectId(req.params.user_id);
         var id = mongoose.Types.ObjectId(req.params.post_id);
-        var like_by = mongoose.Types.ObjectId(req.params.like_by);
+        //var like_by = mongoose.Types.ObjectId(req.params.like_by);
        
         User.findOneAndUpdate(
            { '_id': user_id, 'posts._id': id },
            { '$pull': {
-                    'posts.$.likes' : { $elemMatch : { 'user': like_by } }
+                    'posts.$.likes' : { $elemMatch : { 'user': user._id } }
                 }
            },
            { 'new' : true },
            (err, result) => {
-               if(err) return res.status(422).json({ error: "unknown error removing like in a post"});
-               
-                User.aggregate([
-                { $match: { _id: user_id, 'posts._id' : id } },
-                { $unwind: '$posts' },
-                { $project: {
-                    photoURL: 1,
-                    post_id: '$posts._id',
-                    imageURL: '$posts.imageURL',
-                    description: '$posts.description',
-                    likesCount: { $size: '$posts.likes' },
-                    liked: { $size : {
-                        $filter: { 
-                            input: '$posts.likes',
-                            as: 'like',
-                            cond: { $eq: [ '$$like.user', user._id ] }
-                        }
-                    }}
-                }},
-                { $sort: { 'posts.date': -1} }
-                ])
-                .exec((err, result) => {
-                    if(err) return res.status(422).json({ error: "unknown error getting posts"});
-                    
-                    res.status(200).json(result);
-                });
+                if(err) return res.status(422).json({ error: "unknown error removing like in a post"});
+                //return empty success
+                return res.status(200).json();
            }
            );
     });

@@ -15,9 +15,12 @@ export default function reducer(state = initState, action) {
     switch(action.type){
         case 'FETCH_USER':
             return state.set('user', Map(action.payload.user));
+        /*
+        --Deprecated--
         case 'FETCH_NEW_POST':
             const nPost = normalize({...action.payload.post, post_id: action.payload.post._id}, post);
             return state.updateIn(['posts'], posts => posts.merge(Map(nPost.entities.posts)));
+        */
         case 'REQUEST_POSTS':
             return state.set('requesting', action.payload.requesting);
         case 'FETCH_POSTS':

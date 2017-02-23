@@ -13,48 +13,49 @@ class UserPosts extends React.Component {
         this.componentDidUpdate = this.componentDidUpdate.bind(this);
     }
     
-    handleLikePost(user, post_id){
-        const url = `/posts/like/${user._id}/${post_id}/${this.props.user._id}`;
+    handleLikePost(userId, post_id){
+        let url = `/posts/like/${userId}/${post_id}`;
         axios.get(url)
         .then((response) => {
-            this.props.dispatch(userActions.fetchPosts(response.data));
-            console.log(response);
+            //update list of user posts
+            userActions.getUserPosts(this.props.dispatch, this.props.user_id);
         })
         .catch((error) => {
             console.error(error.message);
         });
     }
     
-    handleUnlikePost(user, post_id){
-        const url = `/posts/unlike/${user._id}/${post_id}/${this.props.user._id}`;
+    handleUnlikePost(userId, post_id){
+        let url = `/posts/unlike/${userId}/${post_id}`;
         axios.get(url)
         .then((response) => {
-            this.props.dispatch(userActions.fetchPosts(response.data));
-            console.log(response);
+            //update list of user posts
+            userActions.getUserPosts(this.props.dispatch, this.props.user_id);
         })
         .catch((error) => {
             console.error(error.message);
         });
     }
-    
     
     handleGoUser(user_id){
         browserHistory.push( { pathname: '/userPosts', query : { user_id : user_id } });
     }
     
-    componentWillMount(){
-        const url = `/posts/${this.props.user_id}`;
-        axios.get(url)
+    handleRemovePost(user, post_id){
+        const url = `/posts/${post_id}`;
+        axios.delete(url)
         .then((response) => {
-            this.props.dispatch(
-                userActions.fetchUserPosts(
-                    response.data.user, response.data.posts
-                )
-            );
+            //update list of user posts
+            userActions.getUserPosts(this.props.dispatch, this.props.user_id);
         })
         .catch((error) => {
             console.error(error.message);
         });
+    }
+    
+    componentWillMount(){
+        //Request and fetch user´s posts
+        userActions.getUserPosts(this.props.dispatch, this.props.user_id);
     }
     
     componentDidUpdate(){
@@ -75,12 +76,13 @@ class UserPosts extends React.Component {
             for(let prop in this.props.userPosts.posts) {
                 let post = this.props.userPosts.posts[prop];
                 postElements.push(<div className="grid-item" key={prop}>
-                            <Post id={post.post_id} userId={prop} photoURL={post.photoURL}
+                            <Post id={post.post_id} userId={post._id} photoURL={post.photoURL}
                                 imageURL={post.imageURL} description={post.description}
                                 likesCount={post.likesCount} liked={post.liked > 0} 
                                 user={this.props.user} goUser={this.handleGoUser.bind(this)}
                                 unlikedPost ={this.handleUnlikePost.bind(this)} 
-                                likePost={this.handleLikePost.bind(this)} />
+                                likePost={this.handleLikePost.bind(this)} 
+                                removePost={this.handleRemovePost.bind(this)}/>
                         </div>);
             }   
         }

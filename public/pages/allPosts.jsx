@@ -11,24 +11,22 @@ class AllPosts extends React.Component {
         super(props);
     }
     
-    handleLikePost(user, post_id){
-        const url = `/posts/like/${user._id}/${post_id}/${this.props.user._id}`;
+    handleLikePost(userId, post_id){
+        const url = `/posts/like/${userId}/${post_id}`;
         axios.get(url)
         .then((response) => {
-            this.props.dispatch(userActions.fetchPosts(response.data));
-            console.log(response);
+            userActions.getPosts(this.props.dispatch);
         })
         .catch((error) => {
             console.error(error.message);
         });
     }
     
-    handleUnlikePost(user, post_id){
-        const url = `/posts/unlike/${user._id}/${post_id}/${this.props.user._id}`;
+    handleUnlikePost(userId, post_id){
+        const url = `/posts/unlike/${userId}/${post_id}`;
         axios.get(url)
         .then((response) => {
-            this.props.dispatch(userActions.fetchPosts(response.data));
-            console.log(response);
+            userActions.getPosts(this.props.dispatch);
         })
         .catch((error) => {
             console.error(error.message);
@@ -39,31 +37,20 @@ class AllPosts extends React.Component {
         browserHistory.push( { pathname: '/userPosts', query : { user_id : user_id } });
     }
     
-    componentWillMount(){
-        this.props.dispatch((dispatch) => {
-            
-            dispatch(userActions.requestPost());
-            
-            axios.get('/posts')
-            .then((response) => {
-                dispatch(userActions.fetchPosts(response.data));
-                
-                if(this.props.user._id){
-                    axios.get('/posts/' + this.props.user._id)
-                    .then((response) => {
-                        console.log(response);
-                    })
-                    .catch((error) => {
-                       debugger;
-                       console.error(error.message);
-                    });
-                }
-            })
-            .catch((error) => {
-                debugger;
-                dispatch(userActions.fetchRequestError(error.message));
-            }); 
+    handleRemovePost(post_id){
+        const url = `/posts/${post_id}`;
+        axios.delete(url)
+        .then((response) => {
+            userActions.getPosts(this.props.dispatch);
+        })
+        .catch((error) => {
+            console.error(error.message);
         });
+    }
+    
+    componentWillMount(){
+        //Request and fetch all user´s posts
+        userActions.getPosts(this.props.dispatch, true);
     }
     
     componentDidUpdate(){
@@ -87,7 +74,8 @@ class AllPosts extends React.Component {
                             likesCount={post.likesCount} liked={post.liked > 0} 
                             user={this.props.user} goUser={this.handleGoUser}
                             unlikedPost ={this.handleUnlikePost.bind(this)} 
-                            likePost={this.handleLikePost.bind(this)} />
+                            likePost={this.handleLikePost.bind(this)} 
+                            removePost={this.handleRemovePost.bind(this)}/>
                     </div>);
         }
         
