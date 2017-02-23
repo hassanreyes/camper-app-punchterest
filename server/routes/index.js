@@ -10,7 +10,7 @@ var routes = function(app, router, passportInstance){
     *---------------------------------------------*/
     
     router.get('/', (req, res) => {
-        res.render('app');
+        res.render('app', { domain: process.env.DOMAIN });
     });
     
     

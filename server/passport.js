@@ -23,7 +23,7 @@ module.exports = {
         const twitterLogin = new TwitterStrategy({
             consumerKey: process.env.TWITTER_CONSUMER_KEY,
             consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
-            callbackURL: "https://fcc-hr-punchterest-app.herokuapp.com/auth/twitter/callback"
+            callbackURL: process.env.DOMAIN + "/auth/twitter/callback"
         },(token, tokenSecret, profile, done) => {
             User.findOne({ twitterId: profile.id }, function (err, user) {
                 if(err) return done(err);
