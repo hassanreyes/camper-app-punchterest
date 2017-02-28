@@ -59,7 +59,8 @@ var routes = function(app, router, passportInstance){
                     }
                 }}
             }},
-            { $sort: { 'posts.date': -1} }
+            { $sort: { 'posts.date': -1} },
+            { $limit : 50 }
             ])
             .exec((err, result) => {
                 if(err) return res.status(422).json({ error: "unknown error getting posts"});
