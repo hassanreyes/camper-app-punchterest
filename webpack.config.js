@@ -1,7 +1,10 @@
 var path = require('path');
+var webpack = require('webpack');
 
 module.exports = {
-    entry: './public/app.jsx',
+    entry: [
+        './public/app.jsx'
+    ],
     output: {
         path: __dirname,
         filename: './client/js/bundle.js'
@@ -33,5 +36,6 @@ module.exports = {
                 plugins: ["transform-decorators-legacy", "transform-es2015-modules-simple-commonjs", "babel-plugin-webpack-alias"]
             }
         ]
-    }
+    },
+    devtool: 'cheap-module-eval-source-map'
 };

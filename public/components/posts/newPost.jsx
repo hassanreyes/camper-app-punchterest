@@ -22,6 +22,8 @@ class NewPost extends React.Component {
     }
     
     handlePostIt(e){
+      e.preventDefault();
+      if(this.state.imageURL) {
         axios.post('/post', this.state)
         .then((response) => {
           //Clear fields
@@ -33,12 +35,14 @@ class NewPost extends React.Component {
         })
         .catch((response) => {
             console.error(response.message);
-        });
+        }); 
+      }
     }
     
     render() {
         return (
             <div className="modal fade" id="newPostModal" role="dialog" aria-labelledby="newPostLabel">
+            <form action="/#" onSubmit={this.handlePostIt.bind(this)}>
               <div className="modal-dialog" role="document">
                 <div className="modal-content">
                   <div className="modal-header">
@@ -50,7 +54,7 @@ class NewPost extends React.Component {
                       <div className="col-sm-12 col-md-12">
                         <div className="thumbnail">
                           <div>
-                          <img className="app-thumbnail-img" id="imageURLPreview" src={this.state.imageURL} alt={this.state.description}
+                          <img className="app-thumbnail-img" id="imageURLPreview" src={this.state.imageURL} alt={this.state.description} required
                             onError={(e) => e.target.src = "http://res.cloudinary.com/hassan/image/upload/v1486438820/punch_watermark_meblzh.svg"}/>
                           </div>
                           <div className="caption">
@@ -61,7 +65,7 @@ class NewPost extends React.Component {
                                     onChange={this.handleImageURLChange.bind(this)} />
                                 <label htmlFor="description">Description</label>
                                 <textarea className="form-control" id="description" rows="3" maxLength="49"
-                                    value={this.state.description}
+                                    value={this.state.description} 
                                     onChange={this.handleDescriptionChange.bind(this)}/>
                             </div>
                           </div>
@@ -71,10 +75,11 @@ class NewPost extends React.Component {
                   </div>
                   <div className="modal-footer">
                     <button type="button" className="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="button" className="btn btn-primary" onClick={this.handlePostIt.bind(this)}>Post It</button>
+                    <button type="submit" className="btn btn-primary" onClick={this.handlePostIt.bind(this)}>Post It</button>
                   </div>
                 </div>
               </div>
+              </form>
             </div>
         );
     }

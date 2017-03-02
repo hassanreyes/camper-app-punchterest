@@ -104,7 +104,7 @@ var routes = function(app, router, passportInstance){
                         $filter: { 
                             input: '$posts.likes',
                             as: 'like',
-                            cond: { $eq: [ '$$like.user', user._id ] }
+                            cond: { $eq: [ '$$like.user', user._id ] } 
                         }
                     }}
                 }

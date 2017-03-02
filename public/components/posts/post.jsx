@@ -3,7 +3,7 @@ import React from "react";
 export default class Post extends React.Component {
     
     handleLikeIt(e) {
-        if(this.props.user && this.props.user._id){
+        if(this.props.user){
             if(this.props.liked)
                 this.props.unlikedPost(this.props.userId, this.props.id);
             else
@@ -18,7 +18,7 @@ export default class Post extends React.Component {
     }
     
     handleRemove(e){
-        if(this.props.user && this.props.user._id){
+        if(this.props.user){
             this.props.removePost(this.props.id);
         }
     }
@@ -27,12 +27,12 @@ export default class Post extends React.Component {
         
         let likeButtonClassName = "btn btn-default ";
         
-        if(this.props.user === undefined || this.props.user._id === undefined) 
+        if(this.props.user === undefined) 
             likeButtonClassName += "disabled";
         
         let likeIconClassName = this.props.liked ? "fa fa-thumbs-up liked" : "fa fa-thumbs-o-up";
             
-        let removeButton = this.props.userId === this.props.user._id 
+        let removeButton = this.props.user && this.props.userId === this.props.user._id 
                             ? <button className={likeButtonClassName} onClick={this.handleRemove.bind(this)}>
                                 <i className="fa fa-trash" aria-hidden="true"></i>
                             </button>
